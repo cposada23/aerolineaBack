@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Passalo</title>
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="bower_components/pnotify/dist/pnotify.css">
+    <link rel="stylesheet" href="bower_components/pnotify/dist/pnotify.buttons.css">
+    <link rel="stylesheet" href="bower_components/angular-material/angular-material.min.css">
+    <link rel="stylesheet" href="public/app/css/main.css">
+
+    <script src="public/libraries/p5.js" type="text/javascript"></script>
+    <script src="public/libraries/p5.dom.js" type="text/javascript"></script>
+    <!--<script src="public/libraries/p5.sound.js" type="text/javascript"></script>-->
+</head>
+<body ng-app="passalo">
+
+
+    <div ui-view></div>
+
+
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="bower_components/angular/angular.min.js"></script>
+    <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.min.js"></script>
+    <script src="bower_components/angular-aria/angular-aria.min.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+    <script src="bower_components/angular-material/angular-material.min.js"></script>
+    <script src="bower_components/satellizer/satellizer.min.js"></script>
+    <script src="bower_components/pnotify/dist/pnotify.js"></script>
+    <script src="bower_components/pnotify/dist/pnotify.confirm.js"></script>
+    <script src="bower_components/pnotify/dist/pnotify.buttons.js"></script>
+    <script src="bower_components/angular-pnotify/src/angular-pnotify.js"></script>
+    <script src="bower_components/spin.js/spin.min.js"></script>
+    <script src="bower_components/angular-spinner/angular-spinner.min.js"></script>
+    <script src="bower_components/ng-file-upload/ng-file-upload.min.js"></script>
+    <script src="bower_components/ng-file-upload/ng-file-upload-all.min.js"></script>
+    <script src="bower_components/ng-file-upload/ng-file-upload-shim.min.js"></script>
+
+    <!--                                          APP                                           -->
+    <script type="text/javascript" src="/public/app/app.js"></script>
+        <!-- Modals -->
+            <script type="text/javascript" src="/public/app/modal/profile/profileModal.js"></script>
+
+        <!-- fin Modals -->
+        <!--                 Auth            -->
+            <!--      Modals -->
+                <script type="text/javascript" src="/public/app/auth/modals/login/lognModalCtrl.js"></script>
+                <script type="text/javascript" src="/public/app/auth/modals/singup/singupModalCtrl.js"></script>
+            <!--     Controllers Auth -->
+                <!-- Login -->
+                <script type="text/javascript" src="/public/app/auth/login/loginCtrl.js"></script>
+                <!-- sigup -->
+                <script type="text/javascript" src="/public/app/auth/singup/singupCtrl.js"></script>
+                <!-- Forgot -->
+                <script type="text/javascript" src="/public/app/auth/forgot/forgotCtrl.js"></script>
+                <!-- Reset  -->
+                <script type="text/javascript" src="/public/app/auth/reset/resetCtrl.js"></script>
+            <!--     Services Auth    -->
+                <script type="text/javascript" src="/public/app/services/userService.js"></script>
+            <!--     Directives       -->
+                <script type="text/javascript" src="/public/app/directives/passwordMatch.js"></script>
+        <!--               fin Auth          -->
+
+
+        <!--                P5js            -->
+            <!--     Services       --->
+                <script type="text/javascript" src="/public/app/services/sketchService.js"></script>
+
+
+        <!--                SERVICES        -->
+            <script type="text/javascript" src="/public/app/services/upload.js"></script>
+            <script type="text/javascript" src="/public/app/services/universidadService.js"></script>
+            <script type="text/javascript" src="/public/app/services/facultadService.js"></script>
+            <script type="text/javascript" src="/public/app/services/carreraService.js"></script>
+        <!--               HOME             -->
+            <!--  Controller        --->
+                <script type="text/javascript" src="/public/app/home/homeCtrl.js"></script>
+            <!--           TABLERO          -->
+                <!--    Rutas tablero    -->
+                    <script type="text/javascript" src="/public/app/tablero/rutasTablero.js"></script>
+                <!--    Controladores tablero -->
+                <script type="text/javascript" src="/public/app/tablero/tableroCtrl.js"></script>
+
+                <!--   Registro     -->
+                    <script type="text/javascript" src="/public/app/tablero/registro/universidad/registroUniversidadCtrl.js"></script>
+                    <script type="text/javascript" src="/public/app/tablero/registro/facultad/registroFacultadCtrl.js"></script>
+                    <script type="text/javascript" src="/public/app/tablero/registro/carrera/registroCarreraCtrl.js"></script>
+                    <script type="text/javascript" src="/public/app/tablero/registro/materia/registroMateriaCtrl.js"></script>
+</body>
+</html>

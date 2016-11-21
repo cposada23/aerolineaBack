@@ -1,0 +1,35 @@
+{
+  "name": "jwt-auth-para-web-y-ionic",
+  "description": "loggin por medio de Oauth y jwt",
+  "main": "app.js",
+  "authors": [
+    "Camilo Posada Angel"
+  ],
+  "license": "ISC",
+  "keywords": [
+    "jwt",
+    "node",
+    "express"
+  ],
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "^1.5.7",
+    "satellizer": "^0.14.1",
+    "angular-ui-router": "^0.3.1",
+    "angular-pnotify": "^0.1.2",
+    "angular-animate": "^1.5.7",
+    "angular-spinner": "^0.8.1",
+    "ng-file-upload": "^12.0.4",
+    "angular-material": "^1.0.9"
+  },
+  "resolutions": {
+    "angular": ">=1.4.0"
+  }
+}
