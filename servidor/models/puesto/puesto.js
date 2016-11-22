@@ -1,8 +1,7 @@
 const mongoose  = require('mongoose');
-const crypto = require('crypto');
-
+var Schema = mongoose.Schema;
 //Esquema de silla 
-const puestoSchema = new mongoose.Schema({
+const puestoSchema = new Schema({
     numero:{type:String, required:true},
     tipo:{type:String, required:true},
     avion:{type:Schema.Types.ObjectId, ref:'Aviones'}

@@ -1,9 +1,8 @@
 const mongoose  = require('mongoose');
-const crypto = require('crypto');
-
+var Schema = mongoose.Schema;
 //Esquema de avion 
-const avionSchema = new mongoose.Schema({
-    codigo:{tyte:String, required:true},
+const avionSchema = new Schema({
+    codigo:{type:String, required:true},
     numeroPuestos:{type:Number, required:true}
    
 }, { timestamps: true });

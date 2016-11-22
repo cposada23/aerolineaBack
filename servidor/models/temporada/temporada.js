@@ -1,14 +1,12 @@
 const mongoose  = require('mongoose');
-const crypto = require('crypto');
-
+var Schema = mongoose.Schema;
 //Esquema de aeropuerto 
-const temporadaSchema = new mongoose.Schema({
+const temporadaSchema = new Schema({
    
+  codigo:{type:String, requires:true}, //ALTA, BAJA
   fechaInicio:{type:Date, required:true},
   fechaFin:{type:Date, required:true},
-  precioA:Number,
-  precioB:Number,
-  precioC:Number
+  precioA:Number
   
   
 }, { timestamps: true });

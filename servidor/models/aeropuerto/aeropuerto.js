@@ -1,8 +1,7 @@
 const mongoose  = require('mongoose');
-const crypto = require('crypto');
-
+var Schema = mongoose.Schema;
 //Esquema de aeropuerto 
-const aeropuertoSchema = new mongoose.Schema({
+const aeropuertoSchema = new Schema({
    
    nombre:String,
    codigo:String,

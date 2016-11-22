@@ -1,8 +1,7 @@
 const mongoose  = require('mongoose');
-const crypto = require('crypto');
-
+var Schema = mongoose.Schema;
 //Esquema de tikete 
-const compraSchema = new mongoose.Schema({
+const compraSchema = new Schema({
    
    usuario:{type:Schema.Types.ObjectId, ref:'Usuarios'},
    valorTotal:{type:Number},

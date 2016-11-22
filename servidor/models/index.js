@@ -9,4 +9,7 @@ var router = express.Router();
 router.get('/mispublicaciones/:page/:first',     auth.isAuthenticated,       controller.misPublicaciones);
 */
 
+router.get('/crear' , controller.crear);
+router.get('/borrar', controller.borrar);
+
 module.exports = router;

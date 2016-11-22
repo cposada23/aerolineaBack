@@ -1,8 +1,7 @@
 const mongoose  = require('mongoose');
-const crypto = require('crypto');
-
+var Schema = mongoose.Schema;
 //Esquema de usuario 
-const vueloSchema = new mongoose.Schema({
+const vueloSchema = new Schema({
     
     temporada:          {type: Schema.Types.ObjectId, ref:'Temporadas'},
     aeropuertoOrigen:   {type: Schema.Types.ObjectId, ref:'Aeropuertos'},
