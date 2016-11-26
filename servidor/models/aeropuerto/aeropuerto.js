@@ -5,7 +5,7 @@ const aeropuertoSchema = new Schema({
    
    nombre:String,
    codigo:String,
-   ciudad:String
+   ciudad:{type:Schema.Types.ObjectId, ref:'ciudades'}
    
 }, { timestamps: true });
 

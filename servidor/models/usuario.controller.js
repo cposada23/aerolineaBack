@@ -12,6 +12,128 @@ const Temporada         = require("./temporada/temporada");
 const ciudad            = require("./ciudad/ciudad");
 const async             = require("async");
 
+
+/*Listar todas las ciudades */
+exports.getCiudades = function (req, res) {
+    console.log("getciudades");
+    ciudad.find(function(error, ciudades){
+        if(error)return handleError(res, error);
+        return res.status(200).json(ciudades);
+        
+    });
+};
+
+
+/**
+ * Obtener un aeropuerto dada la ciudad **/
+exports.getAeropuerto = function (req, res) {
+    console.log("get aeropuerto " );
+    Aeropuerto.findOne({ciudad:req.params.ciudad}, function(error, aeropuerto) {
+        if(error)return handleError(res, error);
+        return res.status(200).json(aeropuerto);
+    });
+}
+
+/**
+ * Obtener todos los aeropuertos
+ * */
+exports.getAeropuertos= function (req, res) {
+    Aeropuerto.find(function (error, aeropuertos) {
+        if(error)return handleError(res, error);
+        return res.status(200).json(aeropuertos);
+    });
+}
+
+/**
+ * Listar todos los vuelos 
+ * */
+ 
+exports.getVuelos = function (req, res) {
+    Vuelo.find(function(error, vuelos) {
+        if(error)return handleError(res, error);
+        return res.status(200).json(vuelos);
+    });
+}
+
+/**
+ * Lista de vuelos dada la ciudad de origen */
+ 
+exports.getVuelosCiudadOrigen = function (req, res) {
+    Aeropuerto.findOne({ciudad:req.params.ciudadOrigen}, function(error, aeropuertoOrigen) {
+        if(error)return handleError(res, error);
+        Vuelo.find({aeropuertoOrigen: aeropuertoOrigen},function(error, vuelos) {
+            if(error)return handleError(res, error);
+            return res.status(200).json(vuelos);
+        });
+    });
+}
+
+
+/**
+ * Lista de vuelos dado el aeropuerto de origen  */
+exports.getVuelosAeropuertoOrigen = function (req, res) {
+    Vuelo.find({aeropuertoOrigen: req.params.aeropuertoOrigen},function(error, vuelos) {
+        if(error)return handleError(res, error);
+        return res.status(200).json(vuelos);
+    });
+    
+}
+
+/**
+ * Lista de vuelos dada la ciudad de origen y destino  */
+ 
+exports.getVuelosCiudadOrigen = function (req, res) {
+    Aeropuerto.findOne({ciudad:req.params.ciudadOrigen}, function(error, aeropuertoOrigen) {
+        if(error)return handleError(res, error);
+        Aeropuerto.findOne({ciudad:req.params.ciudadDestino}, function(error, aeropuertoDestino) {
+            if(error)return handleError(res, error);
+            Vuelo.find({aeropuertoOrigen:aeropuertoOrigen, aeropuertoDestino:aeropuertoDestino}).populate({path:'aeropuertoOrigen'})
+            .populate({path:'aeropuertoDestino'})
+            .populate({path:'avion'})
+            .populate({path:'temporada'})
+            .exec(function (error, vuelos) {
+                if(error) return handleError(res, error);
+                return res.status(200).json(vuelos);
+            });
+            /*
+            Vuelo.find({aeropuertoOrigen:aeropuertoOrigen, aeropuertoDestino:aeropuertoDestino}, function(error, vuelos) {
+                if(error)return handleError(res, error);
+                return res.status(200).json(vuelos);
+            });*/
+        });
+    });
+}
+
+
+exports.generarTiquete = function (req, res) {
+    console.log("reqboyd" + JSON.stringify(req.body));
+    return res.status(200).json({hola:'auth'});
+}
+
+
+/**
+ * nombre:String,
+   codigo:String,
+   ciudad:{type:Schema.Types.ObjectId, ref:'ciudades'}
+   */
+
+exports.crearAeropuerto = function (req, res) {
+    console.log("crear aeropuerto");
+    req.assert('ciudad', 'se debe especificar la ciudad').notEmpty();
+    req.assert('codigo', 'Se debe especifica el codigo').notEmpty();
+    req.assert('nombre', 'se debe especificar el nombre').notEmpty();
+    var errors = req.validationErrors();
+    if(errors){
+        console.log("error creando aeropuerto" + JSON.stringify(errors));
+        return res.status(400).send(errors);
+    }
+    Aeropuerto.create({nombre: req.body.nombre, codigo: req.body.codigo, ciudad: req.body.ciudad}, function (error, aeropuerto) {
+        if(error) return handleError(res, error);
+        return res.status(200).json(aeropuerto);
+    });}
+
+
+/** LLenado de la base de datos **/
 exports.borrar = function (req, res) {
     
     ciudad.remove({}, function (err) {
@@ -29,7 +151,7 @@ exports.borrar = function (req, res) {
        console.log("ciudades borradas");
     });
     */
-    /*
+    
     Puesto.remove({}, function (err) {
         if (err)return handleError(res, err);
         console.log("puestos borradas");
@@ -39,7 +161,7 @@ exports.borrar = function (req, res) {
         if (err)return handleError(res, err);
         console.log("puesto por vuelos borradas");
     });
-    ¨*/
+    
     Aeropuerto.remove({}, function (err) {
         if (err)return handleError(res, err);
         console.log("aeropuerto borradas");
@@ -52,8 +174,7 @@ exports.borrar = function (req, res) {
         if (err)return handleError(res, err);
         console.log("Temporada borradas");
     });
-    /*
-   
+
     
     Vuelo.remove({}, function (err) {
         if (err)return handleError(res, err);
@@ -61,10 +182,20 @@ exports.borrar = function (req, res) {
     });
     
    
-    */
+    
     
     return res.status(200).json({borrada:'datos'});
 };
+
+exports.getAero = function (req, res) {
+    
+    console.log("get aero " + JSON.stringify(req.params));
+    Aeropuerto.findOne({codigo:req.params.codigo}, function(error, aeropuerto) {
+        if(error) return handleError(res, error);
+        return res.status(200).json(aeropuerto);
+    });
+    
+}
 
 
 exports.crear = function (req, res) {
@@ -75,7 +206,7 @@ exports.crear = function (req, res) {
         crearAeropuertos,
         crearAviones,
         crearTemporadas,
-        crearVuelos
+        //crearVuelos
         
     ], function (err) {
             if(err) return handleError(res, err);
@@ -84,6 +215,144 @@ exports.crear = function (req, res) {
         }
     );
 };
+
+exports.crear2 = function (req,res) {
+    console.log("crear 2");
+    async.waterfall([
+        crearVuelos,
+        crearPuestos, 
+        crearPuestosPorVuelo
+        
+    ], function (err) {
+            if(err) return handleError(res, err);
+            console.log('Termino de crear');
+            return res.status(200).json({data:'Termino de crear'});
+        }
+    );
+    
+}
+
+
+
+function crearPuestos(callback) {
+    console.log("crear Puestos");
+    async.waterfall([
+        puestosAvion1,
+        puestosAvion2
+        
+    ], function (err) {
+            if(err) return callback(err);
+            console.log('Termino de crear');
+            callback(null);
+        }
+    );
+}
+
+
+/**
+ *  numero:{type:String, required:true},
+    tipo:{type:String, required:true},
+    avion:{type:Schema.Types.ObjectId, ref:'Aviones'}
+    */
+function puestosAvion1(callback) {
+    
+    Avion.findOne({codigo:'a380'}, function (error, avion) {
+        var puesto1 = new Puesto({numero:'A1', tipo:'PC' , avion:avion});
+        var puesto2 = new Puesto({numero:'A2', tipo:'PC' , avion:avion});
+        var puesto3 = new Puesto({numero:'B1', tipo:'G' , avion:avion});
+        var puesto4 = new Puesto({numero:'B2', tipo:'G' , avion:avion});
+        
+        puesto1.save(function (error) {
+            if(error) callback(error);
+            puesto2.save(function (error) {
+                if(error) callback(error);
+                puesto3.save(function (error) {
+                    if(error) callback(error);
+                    puesto4.save(function (error) {
+                        if(error) callback(error);
+                        callback(null);
+                    });
+                });
+            });
+            
+        });
+    });
+    
+}
+
+function puestosAvion2(callback) {
+    Avion.findOne({codigo:'a320'}, function (error, avion) {
+        var puesto1 = new Puesto({numero:'A1', tipo:'PC' , avion:avion});
+        var puesto2 = new Puesto({numero:'A2', tipo:'PC' , avion:avion});
+        var puesto3 = new Puesto({numero:'B1', tipo:'G' , avion:avion});
+        var puesto4 = new Puesto({numero:'B2', tipo:'G' , avion:avion});
+        
+        puesto1.save(function (error) {
+            if(error) callback(error);
+            puesto2.save(function (error) {
+                if(error) callback(error);
+                puesto3.save(function (error) {
+                    if(error) callback(error);
+                    puesto4.save(function (error) {
+                        if(error) callback(error);
+                        callback(null);
+                    });
+                });
+            });
+            
+        });
+        
+    });
+}
+
+/**
+ * async.each(items,
+  // 2nd param is the function that each item is passed to
+  function(item, callback){
+    // Call an asynchronous function, often a save() to DB
+    item.someAsyncCall(function (){
+      // Async call is done, alert via callback
+      callback();
+    });
+  },
+  // 3rd param is the function to call when everything's done
+  function(err){
+    // All tasks are done now
+    doSomethingOnceAllAreDone();
+  }
+);
+*/
+
+
+function crearPuestosPorVuelo(callback) {
+    Avion.findOne({codigo:'a380'}, function (error, avion) {
+        if(error)return callback(error);
+        Puesto.find({avion:avion}, function (error, puestos) {
+            if(error)return callback(error);
+            Vuelo.find({avion:avion}, function (error, vuelos) {
+                if(error)return callback(error);
+                async.each(vuelos, function (vuelo, call) {
+                    async.each(puestos, function (puesto, call) {
+                        var puestoPorVuelo = new PuestoPorVuelo({puesto:puesto, vuelo:vuelo, diponible:true});
+                        puestoPorVuelo.save(function (error) {
+                            if(error)(call(error));
+                            call();
+                        });
+                       
+                    }, function (error) {
+                        if(error){console.log("errorrrrr "); call(error);} 
+                    });
+                    call();
+                },function (error) {
+                    if(error){console.log("errorrrrr ");callback(error);} 
+                    callback(null);
+                })
+                
+            })
+            
+        });
+    });
+}
 
 function crearAeropuertos(callback){
     
@@ -131,22 +400,32 @@ function crearTemporadas(callback) {
 
 function crearVuelos(callback) {
     console.log("Cear Vuelos");
-    Aeropuerto.findOne({codigo:'SKRG'}, function (error, aeropuerto) {
-        if(error){
-            console.log("error buscando aeropuerto");
-            callback(error);
-        }
-        console.log(JSON.stringify(aeropuerto));
-        callback(null);
-    });
+
+
     
-    /*
+    async.waterfall([
+        
+        vuelo1,
+        vuelo2
+        //crearVuelos
+        
+    ], function (err) {
+            if(err) return callback(err);
+            console.log('Termino de crear');
+            callback(null);
+        }
+    );
+    
+    
+    
+}
+
+function vuelo1(callback) {
     Aeropuerto.findOne({codigo:'SKRG'}, function (error, aeropuerto) {
         if(error){
             console.log("aeropuerto medellin no encontrado");
             callback(error);
         }  
-        console.log(aeropuerto);
         var aeropuertoOrigen = aeropuerto;
         Aeropuerto.findOne({codigo:'BOG'}, function (error, aeropuerto) {
             if(error){
@@ -154,7 +433,7 @@ function crearVuelos(callback) {
                 console.log("aeropuerto bogota no encontrado");    
             } 
             var aeropuertoDestino = aeropuerto;
-            Temporada.findOne({codigo:'baja'}, function (error, temporada) {
+            Temporada.findOne({codigo:'Baja'}, function (error, temporada) {
                 if(error){
                     console.log("error buscando temporada" );
                     callback(error);
@@ -168,7 +447,37 @@ function crearVuelos(callback) {
                 });
             });
         });
-    });*/
+    });
+}
+
+function vuelo2(callback) {
+    Aeropuerto.findOne({codigo:'BOG'}, function (error, aeropuerto) {
+        if(error){
+            console.log("aeropuerto bogota no encontrado");
+            callback(error);
+        }  
+        var aeropuertoOrigen = aeropuerto;
+        Aeropuerto.findOne({codigo:'SKRG'}, function (error, aeropuerto) {
+            if(error){
+                callback(error);
+                console.log("aeropuerto medellin no encontrado");    
+            } 
+            var aeropuertoDestino = aeropuerto;
+            Temporada.findOne({codigo:'Alta'}, function (error, temporada) {
+                if(error){ 
+                    console.log("error buscando temporada alta" );
+                    callback(error);
+                }
+                var temporadaAlta = temporada;
+                var dt = new Date(2018, 12, 1);
+                Avion.findOne({codigo:'a380'}, function (error, avion) {
+                    var vuelo = new Vuelo({temporada: temporadaAlta, avion:avion, aeropuertoOrigen: aeropuertoOrigen,aeropuertoDestino:aeropuertoDestino , fecha: dt, precioBase: 1000000 }); 
+                    vuelo.save();
+                    callback(null);
+                });
+            });
+        });
+    });
 }
 
 

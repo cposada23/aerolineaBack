@@ -44,6 +44,7 @@ function localAuth(req, res, next) {
         //return next({status:400,errors:errors});
 
     }
+    console.log("req. body " + req.body);
 
     const options = {
         password: req.body.password,
