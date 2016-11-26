@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 const puestoPorVueloSchema = new Schema({
     
     puesto:{type:Schema.Types.ObjectId, ref:'Puestos'},
-    Vuelo:{type:Schema.Types.ObjectId, ref:'Vuelos'},
+    vuelo:{type:Schema.Types.ObjectId, ref:'Vuelos'},
     disponible:{type:Boolean, default:true}
    
 }, { timestamps: true });

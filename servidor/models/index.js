@@ -18,6 +18,7 @@ router.get('/aeropuerto', controller.getAeropuertos);
 router.post('/aeropuerto/crear', controller.crearAeropuerto);
 router.get('/aeropuerto/:codigo', controller.getAero);
 router.get('/vuelo', controller.getVuelos);
+router.get('/vuelo/puestosDisponibles/:vuelo', controller.getNumeroPuestos);
 router.get('/vuelo/aeropuertoOrigen/:aeropuertoOrigen', controller.getVuelosAeropuertoOrigen);
 router.get('/vuelo/ciudadOrigen/:ciudadOrigen', controller.getVuelosCiudadOrigen);
 router.get('/vuelo/vuelosOrigenDestino/:ciudadOrigen/:ciudadDestino' , controller.getVuelosCiudadOrigen);

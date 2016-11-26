@@ -87,24 +87,48 @@ exports.getVuelosCiudadOrigen = function (req, res) {
         if(error)return handleError(res, error);
         Aeropuerto.findOne({ciudad:req.params.ciudadDestino}, function(error, aeropuertoDestino) {
             if(error)return handleError(res, error);
+            
             Vuelo.find({aeropuertoOrigen:aeropuertoOrigen, aeropuertoDestino:aeropuertoDestino}).populate({path:'aeropuertoOrigen'})
             .populate({path:'aeropuertoDestino'})
             .populate({path:'avion'})
             .populate({path:'temporada'})
             .exec(function (error, vuelos) {
                 if(error) return handleError(res, error);
-                return res.status(200).json(vuelos);
+                var disponibles = [];
+                var response = [];
+                var v = {};
+                async.each(vuelos, function(vuelo, call) {
+                    v._id = vuelo.id;
+                    v.temporada = vuelo.temporada;
+                    v.avion = vuelo.avion;
+                    v.aeropuertoOrigen = vuelo.aeropuertoOrigen;
+                    v.aeropuertoDestino = vuelo.aeropuertoDestino;
+                    v.precioBase =  vuelo.precioBase;
+                    v.fecha = vuelo.fecha;
+                    PuestoPorVuelo.count({vuelo: vuelo, disponible: true}, function (error, count) {
+                        disponibles.push(count);
+                        v.asientos = count;
+                        response.push(v);
+                        call();
+                    });
+                }, function(error) {
+                    if(error)console.log("erro obteniendo el numero de puestos");
+                    console.log("vueloss .." + JSON.stringify(vuelos));
+                    return res.status(200).json({vuelos: response});
+                });
             });
-            /*
-            Vuelo.find({aeropuertoOrigen:aeropuertoOrigen, aeropuertoDestino:aeropuertoDestino}, function(error, vuelos) {
-                if(error)return handleError(res, error);
-                return res.status(200).json(vuelos);
-            });*/
         });
     });
 }
 
 
+/** Obtiene el numero de puestos disponibles para un vuelo **/
+exports.getNumeroPuestos = function (req, res) {
+    PuestoPorVuelo.count({vuelo: req.params.vuelo, disponible: true}, function (error, count) {
+        if(error)return handleError(res,error);
+        return res.status(200).json({disponibles: count});
+    });
+}
 exports.generarTiquete = function (req, res) {
     console.log("reqboyd" + JSON.stringify(req.body));
     return res.status(200).json({hola:'auth'});
@@ -325,6 +349,30 @@ function puestosAvion2(callback) {
 
 
 function crearPuestosPorVuelo(callback) {
+    
+    console.log("Cear Puestos por vuelo");
+
+
+    
+    async.waterfall([
+        
+        crearPuestosPorVueloAvion1,
+        crearPuestosPorVueloAvion2
+        
+    ], function (err) {
+            if(err) return callback(err);
+            console.log('Termino de crear puestos por vuelo');
+            callback(null);
+        }
+    );
+    
+    
+    
+}
+
+
+function crearPuestosPorVueloAvion1(callback){
+    
     Avion.findOne({codigo:'a380'}, function (error, avion) {
         if(error)return callback(error);
         Puesto.find({avion:avion}, function (error, puestos) {
@@ -353,6 +401,38 @@ function crearPuestosPorVuelo(callback) {
         });
     });
 }
+
+function crearPuestosPorVueloAvion2(callback){
+    
+    Avion.findOne({codigo:'a320'}, function (error, avion) {
+        if(error)return callback(error);
+        Puesto.find({avion:avion}, function (error, puestos) {
+            if(error)return callback(error);
+            Vuelo.find({avion:avion}, function (error, vuelos) {
+                if(error)return callback(error);
+                async.each(vuelos, function (vuelo, call) {
+                    async.each(puestos, function (puesto, call) {
+                        var puestoPorVuelo = new PuestoPorVuelo({puesto:puesto, vuelo:vuelo, diponible:true});
+                        puestoPorVuelo.save(function (error) {
+                            if(error)(call(error));
+                            call();
+                        });
+                       
+                    }, function (error) {
+                        if(error){console.log("errorrrrr "); call(error);} 
+                    });
+                    call();
+                },function (error) {
+                    if(error){console.log("errorrrrr ");callback(error);} 
+                    callback(null);
+                })
+                
+            })
+            
+        });
+    });
+}
+
 
 function crearAeropuertos(callback){
     
@@ -406,7 +486,9 @@ function crearVuelos(callback) {
     async.waterfall([
         
         vuelo1,
-        vuelo2
+        vuelo2,
+        vuelo3,
+        vuelo4
         //crearVuelos
         
     ], function (err) {
@@ -471,6 +553,66 @@ function vuelo2(callback) {
                 var temporadaAlta = temporada;
                 var dt = new Date(2018, 12, 1);
                 Avion.findOne({codigo:'a380'}, function (error, avion) {
+                    var vuelo = new Vuelo({temporada: temporadaAlta, avion:avion, aeropuertoOrigen: aeropuertoOrigen,aeropuertoDestino:aeropuertoDestino , fecha: dt, precioBase: 2000000 }); 
+                    vuelo.save();
+                    callback(null);
+                });
+            });
+        });
+    });
+}
+
+function vuelo3(callback) {
+    Aeropuerto.findOne({codigo:'BOG'}, function (error, aeropuerto) {
+        if(error){
+            console.log("aeropuerto bogota no encontrado");
+            callback(error);
+        }  
+        var aeropuertoOrigen = aeropuerto;
+        Aeropuerto.findOne({codigo:'SKRG'}, function (error, aeropuerto) {
+            if(error){
+                callback(error);
+                console.log("aeropuerto medellin no encontrado");    
+            } 
+            var aeropuertoDestino = aeropuerto;
+            Temporada.findOne({codigo:'Alta'}, function (error, temporada) {
+                if(error){ 
+                    console.log("error buscando temporada alta" );
+                    callback(error);
+                }
+                var temporadaAlta = temporada;
+                var dt = new Date(2017, 12, 1);
+                Avion.findOne({codigo:'a320'}, function (error, avion) {
+                    var vuelo = new Vuelo({temporada: temporadaAlta, avion:avion, aeropuertoOrigen: aeropuertoOrigen,aeropuertoDestino:aeropuertoDestino , fecha: dt, precioBase: 2000000 }); 
+                    vuelo.save();
+                    callback(null);
+                });
+            });
+        });
+    });
+}
+
+function vuelo4(callback) {
+    Aeropuerto.findOne({codigo:'BOG'}, function (error, aeropuerto) {
+        if(error){
+            console.log("aeropuerto bogota no encontrado");
+            callback(error);
+        }  
+        var aeropuertoOrigen = aeropuerto;
+        Aeropuerto.findOne({codigo:'SKRG'}, function (error, aeropuerto) {
+            if(error){
+                callback(error);
+                console.log("aeropuerto medellin no encontrado");    
+            } 
+            var aeropuertoDestino = aeropuerto;
+            Temporada.findOne({codigo:'Baja'}, function (error, temporada) {
+                if(error){ 
+                    console.log("error buscando temporada alta" );
+                    callback(error);
+                }
+                var temporadaAlta = temporada;
+                var dt = new Date(2018, 8, 1);
+                Avion.findOne({codigo:'a320'}, function (error, avion) {
                     var vuelo = new Vuelo({temporada: temporadaAlta, avion:avion, aeropuertoOrigen: aeropuertoOrigen,aeropuertoDestino:aeropuertoDestino , fecha: dt, precioBase: 1000000 }); 
                     vuelo.save();
                     callback(null);
@@ -479,6 +621,8 @@ function vuelo2(callback) {
         });
     });
 }
+
+
 
 
 function handleError(res, err) {
