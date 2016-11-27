@@ -8,12 +8,8 @@ module.exports = function (app) {
 
     app.use('/auth',        require('../auth'));
     app.use('/usuario',     require('../models/'));
-    /*app.use('/universidad', require('../models/universidad'));
-    app.use('/facultad',    require('../models/facultad'));
-    app.use('/carrera',     require('../models/carrera'));
-    app.use('/materia',     require('../models/materia'));
     
-    */
+
     app.route('/').get(function (req, res) {
         res.sendFile(path.join(config.root, '/public/index.html'));
     });

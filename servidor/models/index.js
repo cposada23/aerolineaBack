@@ -23,5 +23,6 @@ router.get('/vuelo/aeropuertoOrigen/:aeropuertoOrigen', controller.getVuelosAero
 router.get('/vuelo/ciudadOrigen/:ciudadOrigen', controller.getVuelosCiudadOrigen);
 router.get('/vuelo/vuelosOrigenDestino/:ciudadOrigen/:ciudadDestino' , controller.getVuelosCiudadOrigen);
 router.post('/tiquete/generar', auth.isAuthenticated, controller.generarTiquete);
+router.post('/reserva' , auth.isAuthenticated, controller.generarReserva);
 
 module.exports = router;

@@ -8,11 +8,12 @@ const tiketeSchema = new Schema({
    vueloRegreso:{type:Schema.Types.ObjectId, ref:'Vuelos'},
    compra:{type:Schema.Types.ObjectId, ref:'Compras'},
    estado: {type:Boolean, default:false}, //False significa que es en estado reserva, no lo han pagado
-   puestoPorVuelo:{type:Schema.Types.ObjectId, ref:'PuestosPorVuelos'},
+   puestoIda:{type:Schema.Types.ObjectId, ref:'PuestosPorVuelos'},
+   puestoRegreso:{type:Schema.Types.ObjectId, ref:'PuestosPorVuelos'},
    precio:{type:Number},
    
 }, { timestamps: true });
 
 
 
-module.exports = mongoose.model('Tiketes', tiketeSchema);
+module.exports = mongoose.model('Tiquetes', tiketeSchema);

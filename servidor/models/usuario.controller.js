@@ -11,7 +11,10 @@ const Vuelo             = require("./vuelo/vuelo");
 const Temporada         = require("./temporada/temporada");
 const ciudad            = require("./ciudad/ciudad");
 const async             = require("async");
-
+const qr                = require("qr-js");
+const fs                = require("fs-extra");
+var path                = require("path");
+const targetPath        = path.join(__dirname, "../../qrs/");
 
 /*Listar todas las ciudades */
 exports.getCiudades = function (req, res) {
@@ -129,6 +132,81 @@ exports.getNumeroPuestos = function (req, res) {
         return res.status(200).json({disponibles: count});
     });
 }
+
+/**
+ * async.each(items,
+  // 2nd param is the function that each item is passed to
+  function(item, callback){
+    // Call an asynchronous function, often a save() to DB
+    item.someAsyncCall(function (){
+      // Async call is done, alert via callback
+      callback();
+    });
+  },
+  // 3rd param is the function to call when everything's done
+  function(err){
+    // All tasks are done now
+    doSomethingOnceAllAreDone();
+  }
+);
+*/
+
+exports.generarReserva = function (req, res) {
+    console.log("reserva "  + JSON.stringify(req.body.reserva));
+    console.log("req.user" + JSON.stringify(JSON.stringify(req.user)));
+    var reserva = req.body.reserva;
+    var costoTiquete =  reserva.tipo.id==1?reserva.vueloIda.precioBase:(reserva.vueloIda.precioBase + reserva.vueloRegreso.precioBase);
+    var precio = reserva.tipo.id==1?reserva.vueloIda.precioBase*reserva.numeroTiquetes:(reserva.vueloIda.precioBase + reserva.vueloRegreso.precioBase)*reserva.numeroTiquetes;
+    console.log("preciooo" + precio);
+    var numeroTiquetes = reserva.numeroTiquetes;
+    Compra.create({usuario:req.user._id , valorTotal: precio},function(error, compra) {
+        if(error) return handleError(res, error);
+        if(reserva.tipo.id == 1){ // solo se crea lo de ida
+            console.log("creando vuelos ida");
+            PuestoPorVuelo.find({disponible:true, vuelo:reserva.vueloIda}).limit(Number(numeroTiquetes)).exec(function (error, puestosIda) {
+                if(error){
+                    return handleError(res, error);
+                }
+                async.each(puestosIda,function function_name(puesto, call) {
+                    Tiquete.create({tipo: 1, vueloIda:reserva.vueloIda, compra: compra,puestoIda: puesto,precio:costoTiquete}, function(error) {
+                        if (error) call(error);
+                        puesto.disponible = false;
+                        puesto.save(function (error) {
+                            if(error) call(error);
+                            call();
+                        });
+                    });
+                },function(error) { // se crearo todos los tiquetes de ida
+                    if (error)return handleError(res, error);
+                    return res.status(200).json({pu:puestosIda});
+                });
+            }); 
+        }if(reserva.tipo.id==2){
+            console.log("creando ida y venida");
+            PuestoPorVuelo.find({disponible:true, vuelo:reserva.vueloIda}).limit(Number(numeroTiquetes)).exec(function (error, puestosIda) {
+                if(error){
+                    return handleError(res, error);
+                }
+                async.each(puestosIda,function function_name(puesto, call) {
+                    Tiquete.create({tipo: 1, vueloIda:reserva.vueloIda, compra: compra,puestoIda: puesto,precio:costoTiquete}, function(error) {
+                        if (error) call(error);
+                        call();
+                    });
+                },function(error) { // se crearo todos los tiquetes de ida
+                    if (error)return handleError(res, error);
+                    return res.status(200).json({pu:puestosIda});
+                });
+            }); 
+            
+        }
+    });
+}
+
+
+function generarQR(nombre, cosas) {
+    
+}
+
 exports.generarTiquete = function (req, res) {
     console.log("reqboyd" + JSON.stringify(req.body));
     return res.status(200).json({hola:'auth'});
