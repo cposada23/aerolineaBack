@@ -7,7 +7,9 @@ const compraSchema = new Schema({
    valorTotal:{type:Number},
    fecha:{type:Date, default:Date.now},
    estado:{type:Boolean, default:false}, //False es resereva
-   qr:{type:String}
+   qr:{type:String}, 
+   descripcion: {type:String}, 
+   numeroTiquetes: {type:Number}
    
    
 }, { timestamps: true });

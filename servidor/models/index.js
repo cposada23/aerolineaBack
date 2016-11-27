@@ -4,16 +4,16 @@ const controller    = require('./usuario.controller');
 const auth          = require('../auth/services/AuthModule');
 
 var router = express.Router();
+//**crear y borrar la base de datos basica 
+router.get('/crear' , controller.crear);
+router.get('/crear2' , controller.crear2);
+router.get('/borrar', controller.borrar);
+
 
 
 
 router.get('/ciudades', controller.getCiudades);
 router.get('/aeropuerto/:ciudad', controller.getAeropuerto);
-
-
-router.get('/crear' , controller.crear);
-router.get('/crear2' , controller.crear2);
-router.get('/borrar', controller.borrar);
 router.get('/aeropuerto', controller.getAeropuertos);
 router.post('/aeropuerto/crear', controller.crearAeropuerto);
 router.get('/aeropuerto/:codigo', controller.getAero);
@@ -24,5 +24,7 @@ router.get('/vuelo/ciudadOrigen/:ciudadOrigen', controller.getVuelosCiudadOrigen
 router.get('/vuelo/vuelosOrigenDestino/:ciudadOrigen/:ciudadDestino' , controller.getVuelosCiudadOrigen);
 router.post('/tiquete/generar', auth.isAuthenticated, controller.generarTiquete);
 router.post('/reserva' , auth.isAuthenticated, controller.generarReserva);
+router.get('/misCompras' , auth.isAuthenticated, controller.misCompras);
+router.get('/misTiquetes/:compra', auth.isAuthenticated, controller.misTiquetes);
 
 module.exports = router;
