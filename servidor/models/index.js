@@ -25,6 +25,6 @@ router.get('/vuelo/vuelosOrigenDestino/:ciudadOrigen/:ciudadDestino' , controlle
 router.post('/tiquete/generar', auth.isAuthenticated, controller.generarTiquete);
 router.post('/reserva' , auth.isAuthenticated, controller.generarReserva);
 router.get('/misCompras' , auth.isAuthenticated, controller.misCompras);
-router.get('/misTiquetes/:compra', auth.isAuthenticated, controller.misTiquetes);
-
+router.get('/misTiquetes/:compra',  controller.misTiquetes);
+router.get('/pagarTiquete/:id', controller.pagarTiquete);
 module.exports = router;

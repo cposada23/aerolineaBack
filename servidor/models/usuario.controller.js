@@ -146,15 +146,16 @@ exports.getNumeroPuestos = function (req, res) {
 
 exports.generarReserva = function (req, res) {
     var reserva = req.body.reserva;
-    var costoTiquete =  reserva.tipo.id==1?reserva.vueloIda.precioBase:(reserva.vueloIda.precioBase + reserva.vueloRegreso.precioBase);
+    var costoTiquete =  reserva.tipo.id==1?reserva.vueloIda.precioBase:reserva.vueloRegreso.precioBase;
     var precio = reserva.tipo.id==1?reserva.vueloIda.precioBase*reserva.numeroTiquetes:(reserva.vueloIda.precioBase + reserva.vueloRegreso.precioBase)*reserva.numeroTiquetes;
     var numeroTiquetes = reserva.numeroTiquetes;
+    var numero = reserva.tipo.id==1?reserva.numeroTiquetes:reserva.numeroTiquetes*2;
     var descripcion = "Ciudad de salida, ciudad de llegada Tipo: ";
     descripcion = reserva.tipo.id==1?descripcion + "  ida.":descripcion + " ida y regreso";
-    Compra.create({usuario:req.user._id , valorTotal: precio , descripcion: descripcion , numeroTiquetes: numeroTiquetes},function(error, compra) {
+    Compra.create({usuario:req.user._id , valorTotal: precio , descripcion: descripcion , numeroTiquetes: numero},function(error, compra) {
         if(error) return handleError(res, error);
         var qrCompra = targetPath + String(compra._id)+'.png';
-        qr.saveSync(String(compra._id), qrCompra);
+        qr.saveSync(String(compra._id) + 'usuario: ' + String(req.user._id), qrCompra);
         var ruta = 'https://aerolinea-cposada23.c9users.io/qrs/'+String(compra._id)+'.png';
         compra.qr = ruta;
         compra.save(function (error, compra) {
@@ -162,6 +163,9 @@ exports.generarReserva = function (req, res) {
             if(reserva.tipo.id == 1){ // solo se crea lo de ida
                 PuestoPorVuelo.find({disponible:true, vuelo:reserva.vueloIda}).limit(Number(numeroTiquetes)).exec(function (error, puestosIda) {
                     if(error){ return handleError(res, error); }
+                    if(puestosIda.length<=0){
+                        return handleError(res, "No hay  puestos diponibles");
+                    }
                     async.each(puestosIda,function function_name(puesto, call) {
                         Tiquete.create({tipo: 1, vueloIda:reserva.vueloIda, compra: compra,puestoIda: puesto,precio:costoTiquete}, function(error, tiquete) {
                             if (error) call(error);
@@ -188,6 +192,9 @@ exports.generarReserva = function (req, res) {
                     if(error){
                         return handleError(res, error);
                     }
+                    if(puestosIda.length<=0){
+                        return handleError(res, "No hay  puestos diponibles");
+                    }
                     async.each(puestosIda,function function_name(puesto, call) { //se crean los tiquetes de ida 
                         Tiquete.create({tipo: 1, vueloIda:reserva.vueloIda, compra: compra,puestoIda: puesto,precio:costoTiquete}, function(error, tiquete) {
                             if (error) call(error);
@@ -209,6 +216,9 @@ exports.generarReserva = function (req, res) {
                         PuestoPorVuelo.find({disponible:true, vuelo:reserva.vueloRegreso}).limit(Number(numeroTiquetes)).exec(function (error, puestosRegreso) { // se crean todos los tiquetes de regreso
                             if(error){
                                 return handleError(res, error);
+                            }
+                            if(puestosIda.length<=0){
+                                return handleError(res, "No hay  puestos diponibles");
                             }
                             async.each(puestosRegreso,function function_name(puesto, call) {
                                 Tiquete.create({tipo: 2, vueloRegreso:reserva.vueloRegreso, compra: compra,puestoRegreso: puesto,precio:costoTiquete}, function(error, tiquete) {
@@ -249,10 +259,26 @@ exports.misCompras = function (req, res) {
 }
 
 exports.misTiquetes = function (req, res) {
-    Tiquete.find({compra:req.params.compra}, function(error, tiquetes) {
-        if(error)return handleError(res,error);
+    Tiquete.find({compra:req.params.compra}).populate({
+        path:'vueloIda', 
+        populate:[{path:'aeropuertoOrigen', model:'Aeropuertos'},{path:'aeropuertoDestino', model:'Aeropuertos'}]
+    }).populate({
+        path:'vueloRegreso', 
+        populate:[{path:'aeropuertoOrigen', model:'Aeropuertos'},{path:'aeropuertoDestino', model:'Aeropuertos'}]
+    }).exec(function (error, tiquetes) {
+        if(error) return handleError(res.error);
+        if(!tiquetes){
+            return res.status(500).json({error:"no se encontraron tiqutes"});
+        }
         return res.status(200).json(tiquetes);
     });
+    
+    
+    
+    /*Tiquete.find({compra:req.params.compra}, function(error, tiquetes) {
+        if(error)return handleError(res,error);
+        return res.status(200).json(tiquetes);
+    });*/
 }
 
 exports.generarTiquete = function (req, res) {
@@ -260,6 +286,18 @@ exports.generarTiquete = function (req, res) {
     return res.status(200).json({hola:'auth'});
 }
 
+exports.pagarTiquete = function (req,res) {
+    console.log("pagar t")
+    
+    Tiquete.findOne({_id: req.params.id}, function (error, tiquete) {
+        if(error)return handleError(res, error);
+        tiquete.estado = true;
+        tiquete.save(function (error, tiquete) {
+            if(error)return handleError(res, error);
+            return res.status(200).json(tiquete);
+        });
+    });
+}
 
 /**
  * nombre:String,
